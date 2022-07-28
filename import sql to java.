@@ -1,0 +1,142 @@
+package sqlejemplo;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class App {
+
+    public static void main(String[] args) throws SQLException {
+        // creacion variable tipo string
+        String jdbcUrl = "jdbc:sqlite:C:\\Users\\57322\\Downloads\\hr.db";
+        // variable.
+        Connection conn = null;
+        // la variable se inicia con valor null.
+        // si no se abre siempre va a estar en null.
+        System.out.println("======Select====");
+        try {
+            conn = DriverManager.getConnection(jdbcUrl); // conexion jdb a sqlite
+            String sql = "select * from employees e  where salary >1000";
+            Statement stm = conn.createStatement(); // ejecutar sentencias de sql
+            ResultSet rs = stm.executeQuery(sql); // ejecutar.
+            while (rs.next()) {
+                Integer id = rs.getInt("employee_id");
+                String nombre = rs.getString("first_name");
+                String apellido = rs.getString("last_name");
+                Double salario = rs.getDouble("salary");
+                System.out.println(id + "\t" + nombre + "\t" + apellido + "\t" + salario);
+            }
+            rs.close();
+            stm.close();
+            conn.close();
+
+        } catch (SQLException e) {
+            System.out.println("Error!!");
+            System.out.println(e.getMessage());
+        }
+        System.out.println("============");
+        System.out.println("PrepareStatement");
+        consultaEmpleado(105);
+        // actDepartamento();
+        // borrarRegion(5);
+        actuDepartamentos(15);
+
+    }
+
+    // consulta
+    // Select con preparedStatement
+    public static void consultaEmpleado(int employee_id) throws SQLException {
+        String jdbcUrl = "jdbc:sqlite:C:\\Users\\57322\\Downloads\\hr.db";
+        String sql = "select * from employees where employee_id = ? ";
+        try {
+            Connection conn = DriverManager.getConnection(jdbcUrl);
+            PreparedStatement pstm = conn.prepareStatement(sql);
+            pstm.setInt(1, employee_id);
+            ResultSet rs = pstm.executeQuery();
+            while (rs.next()) {
+                Integer id = rs.getInt("employee_id");
+                String nombre = rs.getString("first_name");
+                String apellido = rs.getString("last_name");
+                Double salario = rs.getDouble("salary");
+                System.out.println(id + "\t" + nombre + "\t" + apellido + "\t" + salario);
+            }
+            rs.close();
+            pstm.close();
+            conn.close();
+        } catch (SQLException e) {
+            System.out.println("Error!!");
+            System.out.println(e.getMessage());
+        }
+    }
+
+    // INSERT into
+
+    public static void actDepartamento() {
+        System.out.println("INSERT=====");
+        Connection conn = null;
+        try {
+            String jdbcUrl = "jdbc:sqlite:C:\\Users\\57322\\Downloads\\hr.db";
+            conn = DriverManager.getConnection(jdbcUrl);
+            String sql = "insert into departments (department_name, location_id) values('I+D',1500)";
+            Statement stm = conn.createStatement();
+            int rows = stm.executeUpdate(sql);
+            if (rows > 0) {
+                System.out.println("Registro creado con exito");
+            }
+            stm.close();
+            conn.close();
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+    }
+    // DELETE
+
+    public static void borrarRegion(int region_id) throws SQLException {
+
+        System.out.println("================================");
+        System.out.println("DELETE");
+        String url = "jdbc:sqlite:C:\\Users\\57322\\Downloads\\hr.db";
+        String sql = "delete from regions where region_id = " + region_id; // contatenar.
+        try (
+                Connection conn = DriverManager.getConnection(url);
+                Statement stm = conn.createStatement();
+        // los recurso abiertos entre los parentesisi se cierran automaticamente al
+        // finalizar el try
+        ) {
+            int rows = stm.executeUpdate(sql);
+            if (rows > 0) {
+                System.err.println("Registro borrado");
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    // ACTUALIZAR.
+    private static void actuDepartamentos(int dep_id) throws SQLException {
+        System.out.println("=======================");
+        System.out.println("ACTUALIZAR");
+        String url = "jdbc:sqlite:C:\\Users\\57322\\Downloads\\hr.db";
+        String sql = "update departments set department_name ='Mantenimiento' where department_id =18 ";
+        try (
+                Connection conn = DriverManager.getConnection(url);
+                Statement stm = conn.createStatement();
+
+        ) {
+            int rows = stm.executeUpdate(sql);
+            if (rows > 0) {
+                System.out.println("Registro actualizado");
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+    }
+
+}
